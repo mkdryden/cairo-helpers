@@ -74,7 +74,7 @@ def composite_surface(surfaces, op=cairo.OPERATOR_OVER, alphas=None):
 
 
 def ensure_list(value):
-    if isinstance(value, types.StringTypes):
+    if isinstance(value, (str,)):
         return [value]
     else:
         return value
@@ -118,8 +118,8 @@ class SurfaceManager(object):
         '''
         if name is None:
             name = 'surface%d' % index
-        before_items = self.surfaces.items()[:index]
-        after_items = self.surfaces.items()[index:]
+        before_items = list(self.surfaces.items())[:index]
+        after_items = list(self.surfaces.items())[index:]
         self.surfaces = OrderedDict(before_items + [(name, surface)] +
                                     after_items)
         return name, surface
@@ -133,7 +133,7 @@ class SurfaceManager(object):
 
     def update(self, named_surfaces):
         self.surfaces.update(named_surfaces)
-        return named_surfaces.items()
+        return list(named_surfaces.items())
 
     def flatten(self, name_or_names=None):
         if name_or_names is None:
@@ -142,10 +142,10 @@ class SurfaceManager(object):
         return composite_surface(surfaces)
 
     def visible_surface_names(self):
-        return [k for k in self.surfaces.iterkeys() if k not in self.hidden]
+        return [k for k in self.surfaces.keys() if k not in self.hidden]
 
     def __getitem__(self, name_or_names=None):
-        if isinstance(name_or_names, types.StringTypes):
+        if isinstance(name_or_names, (str,)):
             return self.surfaces[name_or_names]
         else:
             return [self.surfaces[k] for k in name_or_names]
@@ -175,7 +175,7 @@ class SurfaceManager(object):
     def to_frame(self):
         import pandas as pd
 
-        return pd.DataFrame(self.surfaces.items(), columns=['name', 'surface'])
+        return pd.DataFrame(list(self.surfaces.items()), columns=['name', 'surface'])
 
 
 class AlphaSurfaceManager(SurfaceManager):
